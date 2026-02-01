@@ -1,5 +1,5 @@
 use crate::{
-    F32Ext,
+    VecExt,
 };
 use std::{
     fmt::{
@@ -36,6 +36,8 @@ pub struct Vec3 {
     pub y: f32,
     pub z: f32,
 }
+
+impl VecExt<3> for Vec3 {}
 
 impl Vec3 {
     /// The default Vec3 with all 0's
@@ -95,38 +97,11 @@ impl Vec3 {
     }
 
 
-    /// Normalizes a Vec3 so its magnitute is 1.0
-    /// Requires: self must not be of magnitude ~zero
-    #[inline]
-    pub fn normalize(self) -> Vec3 {
-        self * self.length_recip()
-    }
-
-    /// Returns the normalized vector and its previous magnitute
-    /// Requires: self must not be of magnitude ~zero
-    #[inline]
-    pub fn normalize_and_length(self) -> (Vec3, f32) {
-        let length = self.length();
-        (self / length, length)
-    }
-
     /// Transforms a local-space Vec3 into world-space
     /// Requires: right, up, and forward should all be normalized
     #[inline]
     pub fn to_world(self, right: Vec3, up: Vec3, forward: Vec3) -> Vec3 {
         right * self.x + up * self.y + forward * self.z
-    }
-
-    /// Computes the sum of each Vec3 element
-    #[inline]
-    pub fn sum(self) -> f32 {
-        self.x + self.y + self.z
-    }
-
-    /// Computes the dot product of two Vec3s
-    #[inline]
-    pub fn dot(self, rhs: Vec3) -> f32 {
-        (self * rhs).sum()
     }
 
     /// Computes the cross product of two Vec3s
@@ -137,33 +112,6 @@ impl Vec3 {
             self.z * rhs.x - rhs.z * self.x,
             self.x * rhs.y - rhs.x * self.y,
         )
-    }
-
-    /// Returns the Vec3 with the min for each element pair
-    #[inline]
-    pub fn min(self, rhs: Vec3) -> Vec3 {
-        Vec3::new(
-            self.x.min(rhs.x),
-            self.y.min(rhs.y),
-            self.z.min(rhs.z),
-        )
-    }
-
-    /// Returns the Vec3 with the max for each element pair
-    #[inline]
-    pub fn max(self, rhs: Vec3) -> Vec3 {
-        Vec3::new(
-            self.x.max(rhs.x),
-            self.y.max(rhs.y),
-            self.z.max(rhs.z),
-        )
-    }
-
-    /// Clamps a Vec3 so that each value is between the appropriate min and max element
-    /// Requires: min < max
-    #[inline]
-    pub fn clamp(self, min: Vec3, max: Vec3) -> Vec3 {
-        self.min(max).max(min)
     }
 
     /// Clamps the x value of Vec3
@@ -197,67 +145,6 @@ impl Vec3 {
             self.y,
             self.z.clamp(min, max),
         )
-    }
-
-    /// Computes an absolute value on each element
-    #[inline]
-    pub fn abs(self) -> Vec3 {
-        Vec3::new(
-            self.x.abs(),
-            self.y.abs(),
-            self.z.abs(),
-        )
-    }
-
-    /// Computes the distance between a Vec3 and Vec3::ZERO
-    #[inline]
-    pub fn length(self) -> f32 {
-        self.dot(self).sqrt()
-    }
-
-    /// Computes the reciprocal of the distance between a Vec3 and Vec3::ZERO
-    /// Requires: magnitude of self is not zero
-    #[inline]
-    pub fn length_recip(self) -> f32 {
-        self.dot(self).rsqrt()
-    }
-
-    /// Computes the distance squared between a Vec3 and Vec3::ZERO
-    #[inline]
-    pub fn length_2(self) -> f32 {
-        self.dot(self)
-    }
-
-    /// Computes the distance between one Vec3 and another
-    #[inline]
-    pub fn distance(self, rhs: Vec3) -> f32 {
-        (self - rhs).length()
-    }
-
-    /// Computes the reciprocal of the distance between one Vec3 and another
-    /// Requires: self != rhs
-    #[inline]
-    pub fn distance_recip(self, rhs: Vec3) -> f32 {
-        (self - rhs).length_recip()
-    }
-
-    /// Computes the distance squared between one Vec3 and another
-    #[inline]
-    pub fn distance_2(self, rhs: Vec3) -> f32 {
-        (self - rhs).length_2()
-    }
-
-    /// Linear Interpolation between two Vec3s
-    #[inline]
-    pub fn lerp(self, rhs: Vec3, t: f32) -> Vec3 {
-        self * (1.0 - t) + rhs * t
-    }
-
-    /// Computes the midpoint between two Vec3s
-    /// The same as lerp where t = 0.5
-    #[inline]
-    pub fn midpoint(self, rhs: Vec3) -> Vec3 {
-        (self + rhs) * 0.5
     }
 
     /// Move along an axis by a distance d
@@ -1128,5 +1015,20 @@ impl Into<(f32, f32, f32)> for &Vec3 {
     #[inline]
     fn into(self) -> (f32, f32, f32) {
         (self.x, self.y, self.z)
+    }
+}
+
+
+impl AsRef<[f32; 3]> for Vec3 {
+    #[inline]
+    fn as_ref(&self) -> &[f32; 3] {
+        unsafe { &*(self as *const Vec3 as *const [f32; 3]) }
+    }
+}
+
+impl AsMut<[f32; 3]> for Vec3 {
+    #[inline]
+    fn as_mut(&mut self) -> &mut [f32; 3] {
+        unsafe { &mut *(self as *mut Vec3 as *mut [f32; 3]) }
     }
 }

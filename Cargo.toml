@@ -3,4 +3,7 @@ name = "gdmx"
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
+[profile.asm]
+inherits = "release"
+lto = true
+codegen-units = 1

@@ -1,4 +1,7 @@
-use gdmx::Vec3;
+use gdmx::{
+    VecExt,
+    Vec3,
+};
 
 const EPS: f32 = 1e-6;
 
